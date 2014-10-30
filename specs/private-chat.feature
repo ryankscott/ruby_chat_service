@@ -12,10 +12,12 @@ Scenario: Send message
 		And I type 'Hello'
 	Then the recipient Attendee should be alerted immediately there is an unread message
 		And the Attendee should be able to see the 'Hello' message
+		And it should be clear who sent the message
 		And that message should only be visible to that Attendee
 
 Scenario: View past messages
 	Given I have previously sent messages to an Attendee
 	When I select that Attendee to send a message to
 	Then I should see previously sent and received messages
-		And those messages should be in correcct chronological order
+		And those messages should be in correct chronological order
+		And it should be clear who sent each message

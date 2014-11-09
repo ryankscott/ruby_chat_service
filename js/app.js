@@ -31,7 +31,7 @@ function createChatWebsocket(port_number) {
     };
 
     return ws;
-};
+}
 
 function sendMessage(msg, recipient, attendee_id, chatSocket) {
     console.log("Sending message: " + msg);
@@ -45,7 +45,7 @@ function sendMessage(msg, recipient, attendee_id, chatSocket) {
     var messageTextJson = JSON.stringify(messageText);
     console.log(messageTextJson);
     chatSocket.send(messageTextJson);
-};
+}
 
 $(document).ready(function() {
 

@@ -1,109 +1,94 @@
-var myAttendeeId;
-var myChatService;
 
+function createChatWebsocket(port_number) {
+    this.wsURI = "ws://localhost:" + port_number;
+    console.log("Trying to create WS at " + this.wsURI);
+    var ws = new WebSocket(this.wsURI);
 
+    ws.onmessage = function(evt) {
+        console.log("Message received: " + evt.data);
+        var message = $.parseJSON(evt.data);
+        console.log(message);
+        /* Here we should do some validation of the message
+			- Do we have the right fields?
+			- Is the message for me?
+			- Is the timestamp plausible? etc
+        */
 
+        $("#chatMessages").append('<li>' + message.timeSent + "- \t" + message.sender + ": \t" + message.messageText + '</li>');
+    };
 
- function ChatWebSocket(port_number)
- {
- 		this.wsURI = "ws://localhost:" + port_number;
-		console.log("Trying to create WS at " + this.wsURI);
-	 	this.ws = new WebSocket(this.wsURI);
+    ws.onerror = function()
+    {
+    	console.log("Error creating socket");
+    };
 
-	 	  this.ws.onmessage = function(evt) {
-		 		console.log("message received");
-		 		console.log(evt.data);
-		 		var message = $.parseJSON(evt.data);
-		 		console.log(message);
-		 		$("#chatMessages").append('<li>' + message.timeSent + "- \t" + message.sender + ": \t"  + message.messageText +  '</li>');
-		 		return;
-		 	};
+    ws.onclose = function() {
+        console.log("Socket closed");
+    };
 
+    ws.onopen = function() {
+        console.log("Socket open");
+    };
 
-		 	this.ws.onclose = function () {
-		 		console.log("socket closed");
-		 		return;
-		 	};
-
-		 	this.ws.onopen = function() {
-		 		console.log("socket open");
-		 		return;
-		 	};
-	
- 	
- }
-
-function ChatService(attendee_id)
-{
-	this.attendee_id = attendee_id;
-	this.chatSocket;
-
-	var url = "http://localhost:4567/register?attendee_id=" + this.attendee_id;
-		// Register with the service
-	 	 $.ajax({
-	       type: 'GET',
-	        url: url,
-	        async: false,
-	        contentType: "application/json",
-	        dataType: 'jsonp',
-	    	success: function(json) {
-	    		console.log("success method called")
-				result = $.parseJSON(json);
-		       // Create the new chat service
-	 			this.chatSocket = new ChatWebSocket(result.chat_id);
-	 			//console.log(this.chatSocket);
-		     	return;
-	    	},
-	    	error: function(e) {
-	       		console.log(e.message);
-	       		return;
-	    	}
-		})
-		return;
-
-	this.sendMessage = function (msg, recipient) {
-		console.log(this.chatSocket);
-		console.log("Sending message: " + msg);
- 		var time = new Date();
-		var messageText = {}
-		messageText["timeSent"] = time.toISOString();
-		messageText["sender"] = this.attendee_id;
-		messageText["recipient"] = recipient;
-		messageText["messageText"] = msg;
-		var messageTextJson = JSON.stringify(messageText);
-		console.log(messageTextJson);
- 		this.chatSocket.send(messageTextJson);
- 		return;
-
-	}
-
-	return;
+    return ws;
 };
 
+function sendMessage(msg, recipient, attendee_id, chatSocket) {
+    console.log("Sending message: " + msg);
+    var time = new Date();
+    var messageText = {
+    	timeSent: time.toISOString(),
+    	sender: attendee_id,
+    	recipient: recipient,
+    	messageText: msg
+    };
+    var messageTextJson = JSON.stringify(messageText);
+    console.log(messageTextJson);
+    chatSocket.send(messageTextJson);
+};
 
- $(document).ready(function(){
+$(document).ready(function() {
 
- 	this.chatService = new ChatService(Math.floor((Math.random() * 100) + 1));
- 	console.log(this.chatService);
- 	
- 	 // TODO: Need to think about multiple chats also?
- 
- 	$("#sendMessageBtn").click(function() {
- 		console.log(this.chatService);
- 		console.log($("#chatText").val());
- 		this.chatService.sendMessage($("#chatText").val());
- 		$("#chatText").val('');
- 	
- 		return;
-	});
+	var attendee_id = 123;
+    var chatWs = null;
+    var url = "http://localhost:4567/register?attendee_id=" + attendee_id;
+    // Register with the service
+    /*
+		This call has to be async because it's JSONP, we may have the possibility that the ajax doesn't return 
+		before someone tries to send a message. Need to look into Promises?
+    */
+    $.ajax({
+        type: 'GET',
+        url: url,
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function(json) {
+            result = $.parseJSON(json);
+            chatWs = createChatWebsocket(result.chat_id);
+		},
+        error: function(e) {
+            console.log(e.message);
+            return null;
+        },
+    });   
 
 
-	$('#messageText').keypress(function(event) {
-        if (event.keyCode == '13') { 
- 			console.log($("#chatText").val());
- 			this.chatService.sendMessage($("#chatText").val());
- 			$("#chatText").val('');
-        }
-      });
- 	
+    $("#sendMessageBtn").click(function() {
+        console.log($("#chatText").val());
+        sendMessage($("#chatText").val(), 456, 123, chatWs);
+        $("#chatText").val('');
     });
+
+
+    $('#messageText').keypress(function(event) {
+        if (event.keyCode == '13') {
+            console.log($("#chatText").val());
+            sendMessage($("#chatText").val(), 456, 123, chatWs);
+            $("#chatText").val('');
+        }
+    });
+});
+
+
+
+

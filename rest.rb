@@ -1,9 +1,9 @@
 require 'sinatra'
 require 'sinatra/jsonp'
-require 'pg'
 require 'json'
 require 'net/http'
 require_relative 'app'
+require_relative 'dao'
 require_relative 'ChatWebSocket'
 
 
@@ -25,13 +25,12 @@ get '/register' do
   cs = ChatService.new.create()
   data = {:chat_id => cs, :attendee_id => person_id, :time_created => Time.now.getutc.to_s}.to_json
   # We should persist it the mapping between chat_id and attendee_id
-  # create makes the resource immediately
-  # user = User.create(
-  #   :attendee_id => person_id,
-  #   :chat_id    => cs,
-  #   :status => "online",
-  #   :last_seen_at => DateTime.now()
-  # )
+  user = User.create(
+    :attendee_id => person_id,
+    :chat_id    => cs,
+    :status => "online",
+    :last_seen_at => DateTime.now()
+  )
   JSONP data
 end
 
@@ -39,8 +38,15 @@ end
 get '/status' do
   # It should return the staus of the attendee passed or an array with everyone if no id is passed
   person_id = params[:attendee_id].to_i
-  # Here we would see if we have a record for them registering
+  puts person_id
+  if person_id .nil? || person_id == 0
+      person = User.all()
+      puts "this is the person #{person}"      
+  else
+      person = User.all(:attendee_id => person_id)
+      puts "this is the person #{person}"
 
-  # and return it in JSON
-
+  end
+  puts person
+  JSONP person  
 end

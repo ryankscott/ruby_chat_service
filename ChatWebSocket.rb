@@ -1,4 +1,5 @@
 require 'em-websocket'
+require_relative 'dao'
 
 class ChatWebSocket
   def initialize(port)
@@ -12,9 +13,10 @@ class ChatWebSocket
         ws.onopen do |handshake|
           puts "WebSocket connection open on port #{@port_number}'}"
           @clients << ws
-
+          # Update client to online
+          
           # Publish message to the client
-          messageText = {"timeSent"=> Time.now.getutc.to_s, "type" => "system", "messageText" => "Succesfully connected"}
+          messageText = {"timeSent"=> DateTime.now().to_s, "type" => "system", "messageText" => "Succesfully connected"}
           ws.send messageText.to_json
           puts @clients
         end
@@ -22,11 +24,26 @@ class ChatWebSocket
         ws.onclose do
           puts "Connection closed"
           @clients.delete ws
+
+          # TODO: Update status to offline
+          puts "the port_number is #{@port_number}"
+          user = User.all(:chat_id => @port_number)
+          user.update(:status => "offline", :last_seen_at => DateTime.now())
         end
 
         ws.onmessage do |msg|
           puts "Received Message: #{msg}"
-          # Here we need to parse the JSON
+
+          # Parse and persist to the DB
+          messageHash = JSON.parse(msg)
+          message = Message.create(
+            :recipient => messageHash['recipient'],
+            :sender =>  messageHash['sender'],
+            :message => messageHash['messageText'],
+            :sent_at =>  messageHash['timeSent'],
+            :received_at => DateTime.now(),
+            :read_at => DateTime.now()
+          )
 
           @clients.each do |socket|
             socket.send msg

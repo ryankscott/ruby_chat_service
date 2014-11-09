@@ -5,13 +5,12 @@ require 'dm-migrations'
 DataMapper::Logger.new($stdout, :debug)
 
 # A Postgres connection:
-DataMapper.setup(:default, 'postgres://chat_app:securepassword@localhost/chat_service')
-
+DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/my.db")
 
 class User
 	include DataMapper::Resource
 	property :id, 			Serial
-	property :attendee_id, 	Integer
+	property :attendee_id, 	Integer, :unique => true 
 	property :chat_id,		Integer
 	property :status, 		Enum[ :online, :offline], :default => :offline
 	property :last_seen_at,	DateTime
@@ -26,8 +25,10 @@ class Message
   property :message,		Text    
   property :sent_at, 		DateTime
   property :received_at,	DateTime
-  property :read_at,			DateTime 
+  property :read_at,		DateTime 
 end
 
-# DataMapper.finalize
-# DataMapper.auto_migrate!
+DataMapper.finalize
+DataMapper.auto_upgrade!
+
+

@@ -1,8 +1,8 @@
 
 function createChatWebsocket(port_number) {
-    this.wsURI = "ws://localhost:" + port_number;
-    console.log("Trying to create WS at " + this.wsURI);
-    var ws = new WebSocket(this.wsURI);
+    var wsURI = "ws://localhost:" + port_number;
+    console.log("Trying to create WS at " + wsURI);
+    var ws = new WebSocket(wsURI);
 
     ws.onmessage = function(evt) {
         console.log("Message received: " + evt.data);
@@ -68,7 +68,6 @@ $(document).ready(function() {
 		},
         error: function(e) {
             console.log(e.message);
-            return null;
         },
     });   
 

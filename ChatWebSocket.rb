@@ -13,8 +13,7 @@ class ChatWebSocket
         ws.onopen do |handshake|
           puts "WebSocket connection open on port #{@port_number}'}"
           @clients << ws
-          # Update client to online
-          
+
           # Publish message to the client
           messageText = {"timeSent"=> DateTime.now().to_s, "type" => "system", "messageText" => "Succesfully connected"}
           ws.send messageText.to_json
@@ -25,10 +24,9 @@ class ChatWebSocket
           puts "Connection closed"
           @clients.delete ws
 
-          # TODO: Update status to offline
-          puts "the port_number is #{@port_number}"
           user = User.all(:chat_id => @port_number)
           user.update(:status => "offline", :last_seen_at => DateTime.now())
+
         end
 
         ws.onmessage do |msg|
@@ -44,6 +42,11 @@ class ChatWebSocket
             :received_at => DateTime.now(),
             :read_at => DateTime.now()
           )
+
+          # We should send a message to the queue ready to pick up
+
+
+          
 
           @clients.each do |socket|
             socket.send msg

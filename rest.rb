@@ -23,14 +23,19 @@ get '/register' do
 
 
   cs = ChatService.new.create()
-  data = {:chat_id => cs, :attendee_id => person_id, :time_created => Time.now.getutc.to_s}.to_json
-  # We should persist it the mapping between chat_id and attendee_id
-  user = User.create(
+  data = {:chat_id => cs, 
+          :attendee_id => person_id, 
+          :time_created => Time.now.getutc.to_s
+          }.to_json
+          
+  # Persist it the mapping between chat_id and attendee_id
+  attributes = {
     :attendee_id => person_id,
     :chat_id    => cs,
     :status => "online",
-    :last_seen_at => DateTime.now()
-  )
+    :last_seen_at => DateTime.now()}
+  User.first_or_create(:attendee_id=>person_id).update(attributes)
+
   JSONP data
 end
 
@@ -41,12 +46,8 @@ get '/status' do
   puts person_id
   if person_id .nil? || person_id == 0
       person = User.all()
-      puts "this is the person #{person}"      
   else
       person = User.all(:attendee_id => person_id)
-      puts "this is the person #{person}"
-
   end
-  puts person
   JSONP person  
 end

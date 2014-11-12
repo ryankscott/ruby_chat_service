@@ -1,4 +1,6 @@
 require_relative 'ChatWebSocket'
+require "bunny"
+require "thread"
 
 class ChatService
   def create()
@@ -8,3 +10,7 @@ class ChatService
     return port_number
   end
 end
+
+
+
+

@@ -7,7 +7,7 @@ require_relative 'dao'
 require_relative 'ChatWebSocket'
 
 
-set :server, 'webrick'
+# set :server, 'webrick'
 get '/register' do
   person_id = params[:attendee_id].to_i
   puts person_id

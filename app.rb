@@ -1,5 +1,4 @@
 require_relative 'ChatWebSocket'
-require "bunny"
 require "thread"
 
 class ChatService

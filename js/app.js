@@ -14,7 +14,7 @@ function createChatWebsocket(port_number) {
 			- Is the timestamp plausible? etc
         */
 
-        $("#chatMessages").append('<li>' + message.timeSent + "- \t" + message.sender + ": \t" + message.messageText + '</li>');
+        $("#chatMessages").append('<li>' + message.sent_at + "- \t" + message.sender + ": \t" + message.message + '</li>');
     };
 
     ws.onerror = function()
@@ -37,19 +37,52 @@ function sendMessage(msg, recipient, attendee_id, chatSocket) {
     console.log("Sending message: " + msg);
     var time = new Date();
     var messageText = {
-    	timeSent: time.toISOString(),
+    	sent_at: time.toISOString(),
     	sender: attendee_id,
     	recipient: recipient,
-    	messageText: msg
+    	message: msg
     };
     var messageTextJson = JSON.stringify(messageText);
     console.log(messageTextJson);
     chatSocket.send(messageTextJson);
 }
 
+
+function getUsers()
+{
+     // Get all users
+      $.ajax({
+        type: 'GET',
+        url: "http://localhost:4567/status",
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function(userArray) {
+            $("#userList").html("");
+            $("#userSelect").html("");
+            for (var user in userArray) {
+                result = userArray[user];
+                if (result.status == "online") {
+                    $("#userList").append('<li>' + result.attendee_id + "- \t" + result.status + '</li>');
+                    $("#userSelect").append('<option>' + result.attendee_id + '</option>');
+                }
+            }
+        },
+        error: function(e) {
+            console.log(e.message);
+        },
+    });   
+
+
+}
+
+
+
+
+
 $(document).ready(function() {
 
-	var attendee_id = 123;
+	var attendee_id = Math.floor((Math.random() * 100) + 1);
+    console.log("Attendee id: " + attendee_id);
     var chatWs = null;
     var url = "http://localhost:4567/register?attendee_id=" + attendee_id;
     // Register with the service
@@ -71,10 +104,16 @@ $(document).ready(function() {
         },
     });   
 
+    // Get online users then poll ever 5s
+    getUsers();
+    window.setInterval(function(){getUsers()}, 5000);
+
+
+
 
     $("#sendMessageBtn").click(function() {
         console.log($("#chatText").val());
-        sendMessage($("#chatText").val(), 456, 123, chatWs);
+        sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, chatWs);
         $("#chatText").val('');
     });
 
@@ -82,7 +121,7 @@ $(document).ready(function() {
     $('#messageText').keypress(function(event) {
         if (event.keyCode == '13') {
             console.log($("#chatText").val());
-            sendMessage($("#chatText").val(), 456, 123, chatWs);
+            sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, chatWs);
             $("#chatText").val('');
         }
     });

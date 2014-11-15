@@ -10,7 +10,6 @@ require_relative 'ChatWebSocket'
 # set :server, 'webrick'
 get '/register' do
   person_id = params[:attendee_id].to_i
-  puts person_id
   # Make sure the person exists by calling the API 
 
   # uri = URI('http://example.com/index.html')
@@ -29,12 +28,13 @@ get '/register' do
           }.to_json
           
   # Persist it the mapping between chat_id and attendee_id
-  attributes = {
-    :attendee_id => person_id,
+  new_user = User.first_or_create(:attendee_id=>person_id).update(
     :chat_id    => cs,
     :status => "online",
-    :last_seen_at => DateTime.now()}
-  User.first_or_create(:attendee_id=>person_id).update(attributes)
+    :last_seen_at => DateTime.now())
+ 
+
+  #TODO: Catch the error on save
 
   JSONP data
 end

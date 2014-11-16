@@ -8,7 +8,9 @@ class ChatWebSocket
     conn = Bunny.new()
     conn.start
     @ch   = conn.create_channel
-    @q    = @ch.queue(@port_number.to_s)
+    @message_queue    = @ch.queue(@port_number.to_s)
+    @database_queue = @ch.queue("database")
+
   end
 
 
@@ -17,13 +19,12 @@ class ChatWebSocket
       EM::WebSocket.run(:host => "0.0.0.0", :port => @port_number) do |ws|
 
         ws.onopen { |handshake|
-          puts "WebSocket connection open on port #{@port_number}'}"
+          puts "WebSocket connection opened on port #{@port_number}'}"
 
           # Publish message to the client
           handshake_message = Message.new()
           handshake_message.attributes = {
             :sent_at => DateTime.now().to_s,
-            :type => "system",
             :message => "Succesfully connected at: #{@port_number}"
           }
           ws.send handshake_message.to_json
@@ -45,25 +46,30 @@ class ChatWebSocket
         }
 
         ws.onmessage { |msg|
-          puts "Received Message: #{msg}"
+
+
+
+          # This code is for moving to a database worker model
+          # database_message = {:model => 'message', :attributes => msg}.to_json
+          # puts "trying to persist #{database_message} to the database queue"
+          # @database_queue.publish(database_message)
+
           # Parse and persist to the DB
-          received_message = Message.new
-          received_message.attributes = JSON.parse(msg)
-          received_message['received_at'] = DateTime.now()
-          received_message['read_at'] = DateTime.now()
-          received_message.save
-
-          # TODO: What should we do if the message wasn't persisted?
-          if !received_message.saved?
-            puts "error"
+          begin
+            received_message = Message.new
+            received_message.attributes = JSON.parse(msg)
+            received_message['received_at'] = DateTime.now()
+            received_message['read_at'] = DateTime.now()
+            received_message.save
+          rescue SaveFailureError => saveError
+            puts "Error persisting message: #{saveError}"
           end
-
 
           # Need to do the translation between attendee_id and chat socket
           recipient = User.first(:attendee_id => received_message['recipient'])
           if recipient
             # Add it to the queue (change the routing_key)
-            @ch.default_exchange.publish(msg.to_s, :routing_key => recipient['chat_id'].to_s)
+            @message_queue.publish(msg.to_s, :routing_key => recipient['chat_id'].to_s)
             ws.send "#{msg}"
             # TODO: What do we do if we can't find the recipient
           else
@@ -73,8 +79,7 @@ class ChatWebSocket
 
 
         begin
-          @q.subscribe(:block => false) do |delivery_info, properties, body|
-            puts " [x] Received #{body}"
+          @message_queue.subscribe(:block => false) do |delivery_info, properties, body|
             ws.send "#{body}"
           end
         rescue Interrupt => _

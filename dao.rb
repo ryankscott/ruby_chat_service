@@ -21,6 +21,7 @@ end
 class Message
   include DataMapper::Resource
   property :id,           Serial
+  property :type,         Enum[ :group, :individual, :system], :default => :individual
   property :recipient,    Integer
   property :sender,       Integer
   property :message,      Text

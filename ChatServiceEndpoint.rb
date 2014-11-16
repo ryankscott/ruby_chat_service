@@ -54,6 +54,23 @@ class ChatServiceEndpoint < Sinatra::Base
     end
     JSONP person  
   end
+
+  get '/history' do
+    # Obviously this is horrifically insecure
+    recipient_id = params[:recipient_id].to_i
+    sender_id = params[:sender_id].to_i
+    if (sender_id .nil? || sender_id == 0)
+        message_history = nil
+    elsif(recipient_id .nil? || recipient_id == 0)
+        message_history = Message.all(:sender => sender_id)
+    else
+        message_history = Message.all(:recipient => recipient_id, :sender => sender_id)
+    end
+    JSONP message_history 
+  end 
+
+
+
 run ChatServiceEndpoint.run!
 
 end

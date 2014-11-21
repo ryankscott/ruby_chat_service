@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>Hello React</title>
+    <script src="http://fb.me/react-0.12.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+      // Your code here
+
+var data = [
+  {sender: "Pete Hunt", text: "This is one message"},
+  {sender: "Jordan Walke", text: "This is *another* message"}
+];
+
+
+var Message = React.createClass({
+  render: function() {
+    return (
+      <div className="message">
+        <h2 className="messageSender">
+          {this.props.sender}
+        </h2>
+        {this.props.children}
+      </div>
+    );
+  }
+});
+
+// tutorial2.js
+var MessageList = React.createClass({
+  render: function() {
+    var messageNodes = this.props.data.map(function (message) {
+      return (
+        <Message sender={message.sender}>
+          {message.text}
+        </Message>
+      );
+    });
+    return (
+      <div className="messageList">
+        {messageNodes}
+      </div>
+    );
+  }
+});
+
+var MessageForm = React.createClass({
+  render: function() {
+    return (
+      <div className="messageForm">
+        Hello, world! I am a MessageForm.
+        <ul>
+          <li> I am a list </li>
+        </ul>
+      </div>
+    );
+  }
+});
+
+
+var MessageBox = React.createClass({
+  getInitialState: function() {
+    // Here I would get all the history from the chat
+    
+    return {data: []};
+  },
+   componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  render: function() {
+    return (
+      <div className="messageBox">
+        <h1>Messages</h1>
+        <MessageList data={this.state.data} />
+        <MessageForm />
+      </div>
+    );
+  }
+});
+
+React.render(
+  <MessageBox data={data} />,
+  document.getElementById('content')
+);
+    </script>
+  </body>
+</html>

@@ -5,7 +5,7 @@ require 'dm-migrations'
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
 
-# A Postgres connection:
+# A SQLite connection:
 DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/my.db")
 
 class User
@@ -21,7 +21,6 @@ end
 class Message
   include DataMapper::Resource
   property :id,           Serial
-  property :type,         Enum[ :group, :individual, :system], :default => :individual
   property :recipient,    Integer
   property :sender,       Integer
   property :message,      Text

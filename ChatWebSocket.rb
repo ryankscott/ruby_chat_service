@@ -27,7 +27,6 @@ class ChatWebSocket
           # Publish message to the client
           handshake_message = Message.new()
           handshake_message.attributes = {
-            :type => "system",
             :sent_at => DateTime.now().to_s,
             :message => "Succesfully connected at: #{@port_number}"
           }
@@ -49,7 +48,6 @@ class ChatWebSocket
           # Broadcast the offline messages
           recipient = User.first(:chat_id => @port_number)
           offline_message = Message.new
-          offline_message['type'] = system
           offline_message['message'] = "#{recipient['attendee_id']} is now offline"
           offline_message['received_at'] = DateTime.now()
           offline_message['read_at'] = DateTime.now()

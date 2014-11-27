@@ -1,53 +1,3 @@
-
-function createChatWebsocket(port_number) {
-    var wsURI = "ws://localhost:" + port_number;
-    console.log("Trying to create WS at " + wsURI);
-    var ws = new WebSocket(wsURI);
-
-    ws.onmessage = function(evt) {
-        console.log("Message received: " + evt.data);
-        var message = $.parseJSON(evt.data);
-        console.log(message);
-        /* Here we should do some validation of the message
-			- Do we have the right fields?
-			- Is the message for me?
-			- Is the timestamp plausible? etc
-        */
-
-        $("#chatMessages").append('<li>' + message.sent_at + "- \t" + message.sender + ": \t" + message.message + '</li>');
-    };
-
-    ws.onerror = function()
-    {
-    	console.log("Error creating socket");
-    };
-
-    ws.onclose = function() {
-        console.log("Socket closed");
-    };
-
-    ws.onopen = function() {
-        console.log("Socket open");
-    };
-
-    return ws;
-}
-
-function sendMessage(msg, recipient, attendee_id, chatSocket) {
-    console.log("Sending message: " + msg);
-    var time = new Date();
-    var messageText = {
-    	sent_at: time.toISOString(),
-    	sender: attendee_id,
-    	recipient: recipient,
-    	message: msg
-    };
-    var messageTextJson = JSON.stringify(messageText);
-    console.log(messageTextJson);
-    chatSocket.send(messageTextJson);
-}
-
-
 function getUsers()
 {
      // Get all users
@@ -70,34 +20,27 @@ function getUsers()
         error: function(e) {
             console.log(e.message);
         },
-    });   
-
-
-}
-
-
-
+    });
+    } 
 
 
 $(document).ready(function() {
 
-	var attendee_id = Math.floor((Math.random() * 100) + 1);
+    var attendee_id = Math.floor((Math.random() * 100) + 1);
     console.log("Attendee id: " + attendee_id);
-    var chatWs = null;
-    var url = "http://localhost:4567/register?attendee_id=" + attendee_id;
-    // Register with the service
-    /*
-		This call has to be async because it's JSONP, we may have the possibility that the ajax doesn't return 
-		before someone tries to send a message. Need to look into Promises?
-    */
+    var chatService = null
+
+
     $.ajax({
         type: 'GET',
-        url: url,
+        url: "http://localhost:4567/register?attendee_id=" + attendee_id,
         contentType: "application/json",
         dataType: 'jsonp',
         success: function(json) {
             result = $.parseJSON(json);
-            chatWs = createChatWebsocket(result.chat_id);
+            chatService = new ChatService(result.chat_id, attendee_id, function(message){
+             $("#chatMessages").append('<li>' + message.sent_at + "- \t" + message.sender + ": \t" + message.message + '</li>');
+            });
 		},
         error: function(e) {
             console.log(e.message);
@@ -110,10 +53,9 @@ $(document).ready(function() {
 
 
 
-
     $("#sendMessageBtn").click(function() {
         console.log($("#chatText").val());
-        sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, chatWs);
+        chatService.sendRequest($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
         $("#chatText").val('');
     });
 
@@ -121,8 +63,9 @@ $(document).ready(function() {
     $('#messageText').keypress(function(event) {
         if (event.keyCode == '13') {
             console.log($("#chatText").val());
-            sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, chatWs);
+            chatService.sendRequest($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
             $("#chatText").val('');
+
         }
     });
 });

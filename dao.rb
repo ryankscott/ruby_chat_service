@@ -15,8 +15,8 @@ class User
   property :chat_id,      Integer
   property :status,       Enum[ :online, :offline], :default => :offline
   property :last_seen_at, DateTime
+  storage_names[:default] = 'user'
 end
-
 
 class Message
   include DataMapper::Resource
@@ -27,6 +27,7 @@ class Message
   property :sent_at,      DateTime
   property :received_at,  DateTime
   property :read_at,      DateTime
+  storage_names[:default] = 'message'
 end
 
 DataMapper.finalize

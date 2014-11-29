@@ -22,7 +22,7 @@ function ChatService(attendee_id, messageCallback) {
         contentType: "application/json",
         dataType: 'jsonp'
 	    }).done(function(json){
-	    	result = $.parseJSON(json);
+	    	var result = $.parseJSON(json);
 	    	var port_number = result.chat_id;
 	    	console.log("Registered with service at: " + port_number)
 	    	ws = new WebSocket("ws://" + "localhost:" + port_number)
@@ -65,25 +65,36 @@ function ChatService(attendee_id, messageCallback) {
 		}
 	}
 
-	function getHistory(recipient_id, cb)
-	{
+	function getHistory(recipient_id, cb) {
 	// Get all messages
       $.ajax({
         type: 'GET',
         url: "http://localhost:4567/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
         contentType: "application/json",
-        dataType: 'jsonp',
-        success: function(messageHistory) {
+        dataType: 'jsonp'
+    }).done(function (messageHistory){
         	return cb(messageHistory)
-        },
-        error: function(e) {
-            console.log(e.message);
-            return cb(null)
-        },
+    }).fail(function (e) {
+    	throw e
     });
-
 	}
 
+	function getUsers(cb) {
+	 // Get all users
+      $.ajax({
+        type: 'GET',
+        url: "http://localhost:4567/status",
+        contentType: "application/json",
+        dataType: 'jsonp'
+    }).done(function (userArray) {
+    	return cb(userArray)
+    }).fail(function (e){
+    	throw e
+    })
+    };
+        
 	service.sendRequest = sendRequest;
+	service.getUsers = getUsers;
+	service.getHistory = getHistory;
 	return service;
 }

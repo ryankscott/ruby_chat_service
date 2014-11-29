@@ -1,27 +1,4 @@
-function getUsers()
-{
-     // Get all users
-      $.ajax({
-        type: 'GET',
-        url: "http://localhost:4567/status",
-        contentType: "application/json",
-        dataType: 'jsonp',
-        success: function(userArray) {
-            $("#userList").html("");
-            $("#userSelect").html("");
-            for (var user in userArray) {
-                result = userArray[user];
-                if (result.status == "online") {
-                    $("#userList").append('<li>' + result.attendee_id + "- \t" + result.status + '</li>');
-                    $("#userSelect").append('<option>' + result.attendee_id + '</option>');
-                }
-            }
-        },
-        error: function(e) {
-            console.log(e.message);
-        },
-    });
-    } 
+
 
 
 $(document).ready(function() {
@@ -33,9 +10,18 @@ $(document).ready(function() {
             });
 
     // Get online users then poll ever 5s
-    getUsers();
-    window.setInterval(function(){getUsers()}, 5000);
-    
+    window.setInterval(function(){chatService.getUsers(function (allUsers){
+            $("#userList").html("");
+            $("#userSelect").html("");
+            for (var user in allUsers) {
+                result = allUsers[user];
+                if (result.status == "online") {
+                    $("#userList").append('<li>' + result.attendee_id + "- \t" + result.status + '</li>');
+                    $("#userSelect").append('<option>' + result.attendee_id + '</option>');
+                }
+            }
+    })}, 5000);
+
 
 
     $("#sendMessageBtn").click(function() {

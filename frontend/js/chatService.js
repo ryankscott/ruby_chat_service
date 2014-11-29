@@ -1,5 +1,5 @@
 'use strict';
-function ChatService(port_number, attendee_id, messageCallback) {
+function ChatService(attendee_id, messageCallback) {
 	var service = {};
 	var currentMessageId = 0;
 	var ws;
@@ -14,22 +14,34 @@ function ChatService(port_number, attendee_id, messageCallback) {
 		preConnectionRequests = [];
 		connected = false;
 
-		ws = new WebSocket("ws://" + "localhost:" + port_number)
-		ws.onopen = function () {
-			connected = true;
-			console.log("Connected to WebSocket at: " + window.location.hostname + port_number);
-			console.log('Sending (%d) requests', preConnectionRequests.length);
-			for (var i = 0, c = preConnectionRequests.length; i < c; i++) {
-				ws.send(JSON.stringify(preConnectionRequests[i]));
-			}
-			preConnectionRequests = [];
-		};
-		ws.onclose = function() {
-			connected = false;
-		};
-		ws.onmessage = function (message) {
-			messageListener(JSON.parse(message.data));
-		};
+		// Register the attendee with the chat service
+		console.log("Registering with the service for attendee: " + attendeeId)
+		 $.ajax({
+        type: 'GET',
+        url: "http://localhost:4567/register?attendee_id=" + attendee_id,
+        contentType: "application/json",
+        dataType: 'jsonp'
+	    }).done(function(json){
+	    	result = $.parseJSON(json);
+	    	var port_number = result.chat_id;
+	    	console.log("Registered with service at: " + port_number)
+	    	ws = new WebSocket("ws://" + "localhost:" + port_number)
+			ws.onopen = function () {
+				connected = true;
+				console.log("Connected to WebSocket at: " + window.location.hostname + port_number);
+				console.log('Sending (%d) requests', preConnectionRequests.length);
+				for (var i = 0, c = preConnectionRequests.length; i < c; i++) {
+					ws.send(JSON.stringify(preConnectionRequests[i]));
+				}
+				preConnectionRequests = [];
+			};
+			ws.onclose = function() {
+				connected = false;
+			};
+			ws.onmessage = function (message) {
+				messageListener(JSON.parse(message.data));
+			};
+	    }); 
 	}
 	init();
 
@@ -39,7 +51,6 @@ function ChatService(port_number, attendee_id, messageCallback) {
 			connected = false;
 			init();
 		}
-
 		var time = new Date();
 	    var messageText = {
 	    	sent_at: time.toISOString(),
@@ -47,7 +58,6 @@ function ChatService(port_number, attendee_id, messageCallback) {
 	    	recipient: recipient_id,
 	    	message: msg
 	    };
-
 		if (!connected) {
 			preConnectionRequests.push(messageText);
 		} else {
@@ -68,6 +78,7 @@ function ChatService(port_number, attendee_id, messageCallback) {
         },
         error: function(e) {
             console.log(e.message);
+            return cb(null)
         },
     });
 

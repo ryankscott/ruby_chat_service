@@ -18,7 +18,7 @@ function ChatService(attendee_id, messageCallback) {
 		console.log("Registering with the service for attendee: " + attendeeId)
 		 $.ajax({
         type: 'GET',
-        url: "http://localhost:4567/register?attendee_id=" + attendee_id,
+        url: "http://192.168.59.103:49156/register?attendee_id=" + attendee_id,
         contentType: "application/json",
         dataType: 'jsonp'
 	    }).done(function(json){

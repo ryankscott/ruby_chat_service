@@ -1,0 +1,14 @@
+sudo apt-get install git
+sudo apt-get install vim
+sudo apt-get install rabbitmq-server
+sudo apt-get install libsqlite3-dev
+
+
+gem install sinatra-jsonp
+gem install bunny
+gem install sqlite3
+gem install em-websocket
+gem install data_mapper
+gem install dm-sqlite-adapter
+
+git clone https://github.com/ryankscott/ruby_chat_service.git

@@ -7,6 +7,7 @@ function ChatService(attendee_id, messageCallback) {
 	var connected = false;
 	var attendeeId = attendee_id
 	var messageListener = messageCallback;
+	var wsURL = "http://192.168.103:4567"
 
 	function init() {
 		service = {};
@@ -18,7 +19,7 @@ function ChatService(attendee_id, messageCallback) {
 		console.log("Registering with the service for attendee: " + attendeeId)
 		 $.ajax({
         type: 'GET',
-        url: "http://192.168.59.103:49156/register?attendee_id=" + attendee_id,
+        url: wsURL + "/register?attendee_id=" + attendee_id,
         contentType: "application/json",
         dataType: 'jsonp'
 	    }).done(function(json){
@@ -69,7 +70,7 @@ function ChatService(attendee_id, messageCallback) {
 	// Get all messages
       $.ajax({
         type: 'GET',
-        url: "http://localhost:4567/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
+        url: wsURL + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (messageHistory){
@@ -83,7 +84,7 @@ function ChatService(attendee_id, messageCallback) {
 	 // Get all users
       $.ajax({
         type: 'GET',
-        url: "http://localhost:4567/status",
+        url: wsURL + "/status",
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (userArray) {

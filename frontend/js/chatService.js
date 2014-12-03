@@ -7,7 +7,7 @@ function ChatService(attendee_id, messageCallback) {
 	var connected = false;
 	var attendeeId = attendee_id
 	var messageListener = messageCallback;
-	var wsURL = "http://192.168.103:4567"
+	var wsIP = "192.168.59.103:4567"
 
 	function init() {
 		service = {};
@@ -19,14 +19,14 @@ function ChatService(attendee_id, messageCallback) {
 		console.log("Registering with the service for attendee: " + attendeeId)
 		 $.ajax({
         type: 'GET',
-        url: wsURL + "/register?attendee_id=" + attendee_id,
+        url: "http://" + wsIP + "/register?attendee_id=" + attendee_id,
         contentType: "application/json",
         dataType: 'jsonp'
 	    }).done(function(json){
 	    	var result = $.parseJSON(json);
 	    	var port_number = result.chat_id;
 	    	console.log("Registered with service at: " + port_number)
-	    	ws = new WebSocket("ws://" + "localhost:" + port_number)
+	    	ws = new WebSocket("ws://192.168.59.103:" + port_number)
 			ws.onopen = function () {
 				connected = true;
 				console.log("Connected to WebSocket at: " + window.location.hostname + port_number);
@@ -70,7 +70,7 @@ function ChatService(attendee_id, messageCallback) {
 	// Get all messages
       $.ajax({
         type: 'GET',
-        url: wsURL + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
+        url: "http://" + wsIP + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (messageHistory){
@@ -84,7 +84,7 @@ function ChatService(attendee_id, messageCallback) {
 	 // Get all users
       $.ajax({
         type: 'GET',
-        url: wsURL + "/status",
+        url: "http://" + wsIP + "/status",
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (userArray) {

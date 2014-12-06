@@ -29,6 +29,7 @@ RUN gem install thin --no-ri --no-rdoc
 
 # Clone the repo
 RUN git clone https://github.com/ryankscott/ruby_chat_service.git /home/
+RUN git -C /home/ pull
 
 # Expose the right ports
 EXPOSE 4567

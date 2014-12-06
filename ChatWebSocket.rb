@@ -14,7 +14,6 @@ class ChatWebSocket
     @message_queue.bind(@x, :routing_key => @port_number.to_s)
     @message_queue.bind(@x, :routing_key => "system")
     #@database_queue = @ch.queue("database")
-
   end
 
 
@@ -85,7 +84,11 @@ class ChatWebSocket
             puts "error"
           end
         }
-
+        ws.onerror { |error|
+          if error.kind_of?(EM::WebSocket::WebSocketError)
+           puts error
+          end
+        }
 
         begin
           @message_queue.subscribe(:block => false) do |delivery_info, properties, body|

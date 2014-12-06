@@ -7,7 +7,7 @@ function ChatService(attendee_id, messageCallback) {
 	var connected = false;
 	var attendeeId = attendee_id
 	var messageListener = messageCallback;
-	var wsIP = "192.168.59.103:4567"
+	var wsIP = "192.168.59.103:49157"
 
 	function init() {
 		service = {};

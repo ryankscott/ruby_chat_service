@@ -42,10 +42,4 @@ EXPOSE 80
 EXPOSE 8080
 EXPOSE 22
 
-
-# Start rabbitmq
-CMD ["rabbitmq-server -detached"]
-
-# Run the end-point
-CMD ["ruby /home/ruby_chat_service/ChatServiceEndpoint.rb"]
 		

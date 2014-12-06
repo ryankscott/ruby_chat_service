@@ -10,7 +10,6 @@ class ChatServiceEndpoint < Sinatra::Base
   helpers Sinatra::Jsonp
 
   set :bind, '0.0.0.0'
-  set :server, 'webrick'
   get '/register' do
     person_id = params[:attendee_id].to_i
     # Make sure the person exists by calling the API 

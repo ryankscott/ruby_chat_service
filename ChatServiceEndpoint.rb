@@ -2,12 +2,22 @@ require 'sinatra'
 require 'sinatra/jsonp'
 require 'json'
 require 'net/http'
+reqiure 'bcrypt'
 require_relative 'ChatServiceCreator'
 require_relative 'dao'
 
 
 class ChatServiceEndpoint < Sinatra::Base
   helpers Sinatra::Jsonp
+
+  # Basic auth
+  configure do
+  use Rack::Auth::Basic, "login" do |u, p|
+    endpoint_user = EndpointUser.first(:user_name => u)
+    p == endpoint_user[:password]
+    end
+  end
+
 
   set :bind, '0.0.0.0'
   get '/register' do

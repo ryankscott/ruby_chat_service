@@ -5,7 +5,7 @@ $(document).ready(function() {
 
     var attendee_id = Math.floor((Math.random() * 100) + 1);
     console.log("Attendee id: " + attendee_id);
-    var chatService = chatService = new ChatService(attendee_id, function(message){
+    var chatService = chatService = new ChatService("192.168.59.103", "4567", attendee_id, function(message){
              $("#chatMessages").append('<li>' + message.sent_at + "- \t" + message.sender + ": \t" + message.message + '</li>');
             });
 

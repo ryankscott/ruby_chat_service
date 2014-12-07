@@ -30,5 +30,14 @@ class Message
   storage_names[:default] = 'message'
 end
 
+class EndpointUser
+  include DataMapper::Resource
+  property :id,           Serial
+  property :user_name,    Text, :unique => true
+  property :password,     BCryptHash
+end
+
+default_user = EndpointUser.create(:user_name => "test" :password => "testuser123")
+
 DataMapper.finalize
 DataMapper.auto_upgrade!

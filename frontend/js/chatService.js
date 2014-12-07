@@ -1,13 +1,11 @@
 'use strict';
-function ChatService(attendee_id, messageCallback) {
+function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
 	var service = {};
 	var currentMessageId = 0;
 	var ws;
 	var preConnectionRequests = [];
 	var connected = false;
-	var attendeeId = attendee_id
-	var messageListener = messageCallback;
-	var wsIP = "192.168.59.103:4567"
+
 
 	function init() {
 		service = {};
@@ -19,17 +17,19 @@ function ChatService(attendee_id, messageCallback) {
 		console.log("Registering with the service for attendee: " + attendeeId)
 		 $.ajax({
         type: 'GET',
-        url: "http://" + wsIP + "/register?attendee_id=" + attendee_id,
+        url: "http://" +  webSocketIP +  ":" + webSocketPort + "/register?attendee_id=" + attendeeId,
+        username: "test", 
+        password: "testuser123",
         contentType: "application/json",
         dataType: 'jsonp'
 	    }).done(function(json){
 	    	var result = $.parseJSON(json);
 	    	var port_number = result.chat_id;
 	    	console.log("Registered with service at: " + port_number)
-	    	ws = new WebSocket("ws://192.168.59.103:" + port_number)
+	    	ws = new WebSocket("ws://" + webSocketIP +  ":" + port_number)
 			ws.onopen = function () {
 				connected = true;
-				console.log("Connected to WebSocket at: " + window.location.hostname + port_number);
+				console.log("Connected to WebSocket at: " + webSocketIP +  ":" + port_number);
 				console.log('Sending (%d) requests', preConnectionRequests.length);
 				for (var i = 0, c = preConnectionRequests.length; i < c; i++) {
 					ws.send(JSON.stringify(preConnectionRequests[i]));
@@ -40,7 +40,7 @@ function ChatService(attendee_id, messageCallback) {
 				connected = false;
 			};
 			ws.onmessage = function (message) {
-				messageListener(JSON.parse(message.data));
+				messageCallback(JSON.parse(message.data));
 			};
 	    }); 
 	}
@@ -70,7 +70,9 @@ function ChatService(attendee_id, messageCallback) {
 	// Get all messages
       $.ajax({
         type: 'GET',
-        url: "http://" + wsIP + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
+        url: "http://" +  webSocketIP +  ":" + webSocketPort + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
+        username: "test", 
+        password: "testuser123",
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (messageHistory){
@@ -84,7 +86,7 @@ function ChatService(attendee_id, messageCallback) {
 	 // Get all users
       $.ajax({
         type: 'GET',
-        url: "http://" + wsIP + "/status",
+        url: "http://" + webSocketIP +  ":" + webSocketPort + "/status",
         contentType: "application/json",
         dataType: 'jsonp'
     }).done(function (userArray) {

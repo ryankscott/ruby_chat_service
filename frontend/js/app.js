@@ -9,7 +9,7 @@ $(document).ready(function() {
              $("#chatMessages").append('<li>' + message.sent_at + "- \t" + message.sender + ": \t" + message.message + '</li>');
             });
 
-    // Get online users then poll ever 5s
+    // Get online users then poll every 5s
     window.setInterval(function(){chatService.getUsers(function (allUsers){
             $("#userList").html("");
             $("#userSelect").html("");
@@ -26,7 +26,7 @@ $(document).ready(function() {
 
     $("#sendMessageBtn").click(function() {
         console.log($("#chatText").val());
-        chatService.sendRequest($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
+        chatService.sendMessge($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
         $("#chatText").val('');
     });
 
@@ -34,7 +34,7 @@ $(document).ready(function() {
     $('#messageText').keypress(function(event) {
         if (event.keyCode == '13') {
             console.log($("#chatText").val());
-            chatService.sendRequest($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
+            chatService.sendMessge($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
             $("#chatText").val('');
 
         }

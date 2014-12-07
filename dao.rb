@@ -41,4 +41,5 @@ end
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
+# Create a default end-point user
 default_user = EndpointUser.first_or_create({:user_name => "test"}, {:password => "testuser123"})

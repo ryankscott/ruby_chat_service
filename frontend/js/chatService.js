@@ -5,6 +5,8 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
 	var ws;
 	var preConnectionRequests = [];
 	var connected = false;
+	var endpointUsername = 'test'
+	var endpointPassword = 'testuser123'
 
 
 	function init() {
@@ -20,8 +22,8 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
         url: "http://" +  webSocketIP +  ":" + webSocketPort + "/register?attendee_id=" + attendeeId,
         contentType: "application/json",
         dataType: 'jsonp',
-        username: 'test', 
-        password: 'testuser123'  
+        username: endpointUsername, 
+        password: endpointPassword  
 	    }).done(function(json){
 	    	var result = $.parseJSON(json);
 	    	var port_number = result.chat_id;
@@ -46,7 +48,7 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
 	}
 	init();
 
-	function sendRequest(msg, recipient_id) {
+	function sendMessage(msg, recipient_id) {
 		// websocket closing / closed, reconnect
 		if(ws && ~[2,3].indexOf(ws.readyState)) {
 			connected = false;
@@ -73,8 +75,8 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
         url: "http://" +  webSocketIP +  ":" + webSocketPort + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
         contentType: "application/json",
         dataType: 'jsonp', 
-        username: 'test', 
-        password: 'testuser123' 
+        username: endpointUsername, 
+        password: endpointPassword 
     }).done(function (messageHistory){
         	return cb(messageHistory)
     }).fail(function (e) {
@@ -89,8 +91,8 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
         url: "http://" + webSocketIP +  ":" + webSocketPort + "/status",
         contentType: "application/json",
         dataType: 'jsonp', 
-        username: 'test', 
-        password: 'testuser123' 
+        username: endpointUsername, 
+        password: endpointPassword 
     }).done(function (userArray) {
     	return cb(userArray)
     }).fail(function (e){
@@ -98,7 +100,7 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
     })
     };
         
-	service.sendRequest = sendRequest;
+	service.sendMessage = sendMessage;
 	service.getUsers = getUsers;
 	service.getHistory = getHistory;
 	return service;

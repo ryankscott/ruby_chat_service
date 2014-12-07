@@ -23,6 +23,7 @@ class ChatWebSocket
 
         ws.onopen { |handshake|
           puts "WebSocket connection opened on port #{@port_number}'}"
+          #TODO: We should emit an event on open, need to work out where
           # Publish message to the client
           handshake_message = Message.new()
           handshake_message.attributes = {
@@ -33,6 +34,7 @@ class ChatWebSocket
         }
 
         ws.onclose {
+          #TODO: We should emit an event on close, need to work out where
           puts "Connection closed"
           user = User.all(:chat_id => @port_number)
           begin

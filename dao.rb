@@ -37,7 +37,8 @@ class EndpointUser
   property :password,     BCryptHash
 end
 
-default_user = EndpointUser.create(:user_name => "test" :password => "testuser123")
 
 DataMapper.finalize
 DataMapper.auto_upgrade!
+
+default_user = EndpointUser.first_or_create({:user_name => "test"}, {:password => "testuser123"})

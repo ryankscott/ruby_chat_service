@@ -18,10 +18,10 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
 		 $.ajax({
         type: 'GET',
         url: "http://" +  webSocketIP +  ":" + webSocketPort + "/register?attendee_id=" + attendeeId,
-        username: "test", 
-        password: "testuser123",
         contentType: "application/json",
-        dataType: 'jsonp'
+        dataType: 'jsonp',
+        username: 'test', 
+        password: 'testuser123'  
 	    }).done(function(json){
 	    	var result = $.parseJSON(json);
 	    	var port_number = result.chat_id;
@@ -71,10 +71,10 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
       $.ajax({
         type: 'GET',
         url: "http://" +  webSocketIP +  ":" + webSocketPort + "/history?attendee_id="+attendeeId+"&recipient_id="+recipient_id,
-        username: "test", 
-        password: "testuser123",
         contentType: "application/json",
-        dataType: 'jsonp'
+        dataType: 'jsonp', 
+        username: 'test', 
+        password: 'testuser123' 
     }).done(function (messageHistory){
         	return cb(messageHistory)
     }).fail(function (e) {
@@ -88,7 +88,9 @@ function ChatService(webSocketIP, webSocketPort, attendeeId, messageCallback) {
         type: 'GET',
         url: "http://" + webSocketIP +  ":" + webSocketPort + "/status",
         contentType: "application/json",
-        dataType: 'jsonp'
+        dataType: 'jsonp', 
+        username: 'test', 
+        password: 'testuser123' 
     }).done(function (userArray) {
     	return cb(userArray)
     }).fail(function (e){

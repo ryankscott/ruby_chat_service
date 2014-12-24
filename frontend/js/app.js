@@ -26,7 +26,7 @@ $(document).ready(function() {
 
     $("#sendMessageBtn").click(function() {
         console.log($("#chatText").val());
-        chatService.sendMessge($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
+        chatService.sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
         $("#chatText").val('');
     });
 
@@ -34,13 +34,10 @@ $(document).ready(function() {
     $('#messageText').keypress(function(event) {
         if (event.keyCode == '13') {
             console.log($("#chatText").val());
-            chatService.sendMessge($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
+            chatService.sendMessage($("#chatText").val(), $("#userSelect").val(), attendee_id, function() {console.log("callback")});
             $("#chatText").val('');
 
         }
     });
 });
-
-
-
 
